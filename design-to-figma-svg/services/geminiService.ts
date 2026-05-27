@@ -44,7 +44,7 @@ export const generateSvgFromImage = async (
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview', // Using Pro for complex reasoning/coding tasks
+      model: 'gemini-2.0-pro', // Using latest Pro model for complex reasoning
       contents: {
         role: 'user',
         parts: [
@@ -60,7 +60,6 @@ export const generateSvgFromImage = async (
         ]
       },
       config: {
-        thinkingConfig: { thinkingBudget: 2048 }, // Enable thinking for better spatial analysis
         temperature: 0.2, // Low temperature for precision
       }
     });
@@ -73,7 +72,21 @@ export const generateSvgFromImage = async (
     return text.trim();
 
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    throw new Error("Failed to generate SVG. Please try again.");
+    console.error("[v0] Gemini API Error:", error);
+    
+    if (error instanceof Error) {
+      if (error.message.includes('API')) {
+        throw new Error("API 密钥无效或配置错误");
+      }
+      if (error.message.includes('429')) {
+        throw new Error("请求过于频繁，请稍后再试");
+      }
+      if (error.message.includes('model')) {
+        throw new Error("模型不可用，请检查 API 配置");
+      }
+      throw new Error(`生成失败: ${error.message}`);
+    }
+    
+    throw new Error("生成SVG失败，请重试");
   }
 };
