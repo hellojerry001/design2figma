@@ -59,7 +59,7 @@ export const generateSvgFromImage = async (
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "qwen-vl-plus", // 通义千问视觉模型（plus 版本更易开通）
+        model: "qwen3.7-max-2026-05-17", // 通义千问最新模型
         messages: [
           {
             role: "user",
