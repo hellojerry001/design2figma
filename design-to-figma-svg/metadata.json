@@ -1,0 +1,6 @@
+{
+  "name": "Design to Figma SVG",
+  "description": "Upload a UI screenshot and instantly convert it into editable SVG code ready for Figma.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
