@@ -27,10 +27,13 @@ export const generateSvgFromImage = async (
   imageBase64: string
 ): Promise<string> => {
   try {
-    const apiKey = process.env.API_KEY;
+    // Vite 前端环境使用 import.meta.env，需要 VITE_ 前缀
+    const apiKey = import.meta.env.VITE_API_KEY;
+    
+    console.log("[v0] API Key 是否存在:", !!apiKey);
     
     if (!apiKey) {
-      throw new Error("请设置阿里云百炼 API_KEY 环境变量");
+      throw new Error("请设置 VITE_API_KEY 环境变量（阿里云百炼 API Key）");
     }
 
     const mimeType = getMimeType(imageBase64);
@@ -80,11 +83,14 @@ export const generateSvgFromImage = async (
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error("[v0] API 响应错误:", response.status, errorData);
+      const errorText = await response.text().catch(() => '');
+      console.error("[v0] API 响应错误:", response.status, errorText);
       
-      if (response.status === 401) {
+      if (response.status === 401 || errorText.includes('InvalidApiKey') || errorText.includes('Unauthorized')) {
         throw new Error("API 密钥无效，请检查您的阿里云百炼 API_KEY");
+      }
+      if (response.status === 403 || errorText.includes('NoPermission')) {
+        throw new Error("API 密钥没有访问权限，请检查是否开通了通义千问 VL 服务");
       }
       if (response.status === 429) {
         throw new Error("请求过于频繁，请稍后再试");
